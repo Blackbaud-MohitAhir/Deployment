@@ -1,0 +1,9 @@
+docker build -t abhishekkashyapsudo/apigateway:8 .
+docker build -t abhishekkashyapsudo/discovery-server:8 .
+docker build -t abhishekkashyapsudo/consumers:8 .
+docker build -t abhishekkashyapsudo/sellers:8 .
+docker build -t abhishekkashyapsudo/orders:8 .
+docker build -t abhishekkashyapsudo/requests:8 .
+
+Some links: Eureka UI: http://localhost:8761/
+Jaegar UI: http://localhost:16686/search

@@ -1,0 +1,111 @@
+version: "3"
+
+services:
+    activemq:
+        image: kashyapabhishek123/activemq:1
+
+        volumes:
+                - /tmp:/workspace/logs
+
+        
+
+    jaegar-allinone:
+      image: jaegertracing/all-in-one:1.7
+      ports:
+        - 5775:5775/udp
+        - 6831:6831/udp
+        - 6832:6832/udp
+        - 5778:5778
+        - 16686:16686
+        - 14268:14268
+        - 9411:9411
+
+    discovery-server:
+        container_name: discovery-server
+        image: kashyapabhishek123/discovery-server:2
+        ports:
+                - "8761:8761"
+
+        environment:
+                - opentracing_url=host.docker.internal
+        volumes:
+                - /tmp:/workspace/logs
+
+
+    apigateway:
+        container_name: apigateway
+        image: kashyapabhishek123/apigateway:2
+        ports:
+                - "9999:9999"
+        links:
+                - discovery-server:discovery-server
+        environment:
+                - eureka_url=http://discovery-server:8761/eureka
+                - opentracing_url=host.docker.internal
+        volumes:
+                - /tmp:/workspace/logs
+
+
+    consumers:
+        container_name: consumers
+        image: kashyapabhishek123/consumers:2
+        ports:
+                - "8060:8060"
+        links:
+                - discovery-server:discovery-server
+        environment:
+                - eureka_url=http://discovery-server:8761/eureka
+                - opentracing_url=host.docker.internal
+        volumes:
+                - /tmp:/workspace/logs
+
+
+    sellers:
+        container_name: sellers
+        image: kashyapabhishek123/sellers:2
+        ports:
+                - "8040:8040"
+        links:
+                - discovery-server:discovery-server
+        environment:
+                - eureka_url=http://discovery-server:8761/eureka
+                - activemq_url=tcp://activemq:61616
+                - opentracing_url=host.docker.internal
+        volumes:
+                - /tmp:/workspace/logs
+
+
+    requests:
+        container_name: requests
+        image: kashyapabhishek123/requests:3
+        ports:
+                - "9001:9001"
+        links:
+                - discovery-server:discovery-server
+        environment:
+                - eureka_url=http://discovery-server:8761/eureka
+                - activemq_url=tcp://activemq:61616
+                - opentracing_url=host.docker.internal
+        volumes:
+                - /tmp:/workspace/logs
+
+
+
+    orders:
+        container_name: orders
+        image: kashyapabhishek123/orders:2
+        ports:
+                - "9021:9021"
+        links:
+                - discovery-server:discovery-server
+        environment:
+                - eureka_url=http://discovery-server:8761/eureka
+                - opentracing_url=host.docker.internal
+        volumes:
+                - /tmp:/workspace/logs
+
+
+
+
+
+    
